@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f3a5f">
+<title>Toolbox 점검</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <section id="tab-check">
+    <h1>Tool Box 점검</h1>
+    <div id="need-setup" class="card" hidden>
+      <p>먼저 설정이 필요합니다 (Tool Box No, Hold Count, 폼 주소).</p>
+      <button type="button" data-go="settings">설정으로 이동</button>
+    </div>
+    <div id="check-body">
+      <div class="card" id="summary"></div>
+
+      <h2>Before / After</h2>
+      <div class="chips" id="phase-chips" role="radiogroup" aria-label="Before / After"></div>
+
+      <label>Abnormal (분실/이상 수량, 없으면 0)
+        <input id="abnormal" type="number" inputmode="numeric" min="0" max="9999" value="0">
+      </label>
+
+      <div id="abnormal-extra" hidden>
+        <h2>유형</h2>
+        <div id="loss-types"></div>
+        <p class="err" id="err-lossType"></p>
+        <label>Remark (분실 내용 필수)
+          <textarea id="remark" rows="3"></textarea>
+        </label>
+        <p class="err" id="err-remark"></p>
+      </div>
+
+      <p class="hint" id="mail-hint" hidden>이 제출은 Tool 담당자에게 메일 전송이 체크됩니다.</p>
+      <button type="button" id="submit" class="primary">폼 열어서 제출하기</button>
+      <p class="hint">폼이 열리면 값이 채워져 있습니다. 확인 후 '제출'만 누르세요.</p>
+    </div>
+    <div class="row">
+      <button type="button" id="open-log">로그 시트</button>
+      <button type="button" id="open-manual">매뉴얼 입력 시트</button>
+    </div>
+  </section>
+
+  <section id="tab-settings" hidden>
+    <h1>설정</h1>
+    <p class="hint">한 번 저장하면 점검 화면에 계속 자동 입력됩니다. 이 기기의 브라우저에만 저장됩니다.</p>
+    <label>Tool Box No (폼 목록과 동일하게, 예: GMP617)
+      <input id="s-toolBoxNo" type="text" autocomplete="off">
+    </label>
+    <p class="err" id="e-toolBoxNo"></p>
+    <label>Hold Count (등록 수량)
+      <input id="s-holdCount" type="number" inputmode="numeric" min="0">
+    </label>
+    <p class="err" id="e-holdCount"></p>
+
+    <h2>Shift 기본값</h2>
+    <div class="chips" id="shift-chips" role="radiogroup" aria-label="Shift"></div>
+
+    <label>사용자 (한글 4자 이내, 비우면 이메일 이름)
+      <input id="s-userName" type="text" autocomplete="off">
+    </label>
+    <p class="err" id="e-userName"></p>
+
+    <label class="check"><input id="s-recordEmail" type="checkbox"> 이메일을 응답에 포함</label>
+
+    <h2>Tool 담당자 메일 전송 체크</h2>
+    <div id="mail-modes"></div>
+
+    <label>점검 폼 주소 (Google Form)
+      <input id="s-formUrl" type="url" autocomplete="off">
+    </label>
+    <p class="err" id="e-formUrl"></p>
+    <label>Tool Box 로그 시트 주소
+      <input id="s-logSheetUrl" type="url" autocomplete="off">
+    </label>
+    <p class="err" id="e-logSheetUrl"></p>
+    <label>매뉴얼 입력 시트 주소 (누락일 보충)
+      <input id="s-manualSheetUrl" type="url" autocomplete="off">
+    </label>
+    <p class="err" id="e-manualSheetUrl"></p>
+
+    <button type="button" id="save" class="primary">저장</button>
+    <p class="hint" id="save-msg" role="status"></p>
+  </section>
+</main>
+
+<nav>
+  <button type="button" id="nav-check" class="active">점검</button>
+  <button type="button" id="nav-settings">설정</button>
+</nav>
+
+<div id="dialog" class="overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true">
+    <h3 id="dlg-title"></h3>
+    <p id="dlg-text"></p>
+    <div class="row end">
+      <button type="button" id="dlg-no"></button>
+      <button type="button" id="dlg-yes" class="primary"></button>
+    </div>
+  </div>
+</div>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

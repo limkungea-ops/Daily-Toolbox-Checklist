@@ -22,3 +22,9 @@ GitHub 저장소의 Actions 탭 → 실행 → Artifacts 의 `toolbox-debug-apk`
 
 ## 폼 항목 ID
 폼이 수정되면 `app/src/main/java/com/orion/toolbox/logic/FormLogic.kt` 의 `FormSpec` 을 갱신합니다.
+
+## 웹앱 (PWA) — `web/`
+안드로이드 앱과 같은 기능의 웹 버전. 설치 없이 브라우저에서 열고, 홈 화면에 추가해 앱처럼 씁니다.
+- 로직 테스트: `node --test web/test/logic.test.js`
+- 로컬 실행: `cd web && python3 -m http.server 8000` → http://localhost:8000
+- 배포: GitHub 저장소 Settings → Pages → Source 를 **GitHub Actions** 로 설정하면 `web/` 변경 시 자동 배포
