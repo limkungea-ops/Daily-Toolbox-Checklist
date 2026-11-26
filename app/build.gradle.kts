@@ -15,6 +15,16 @@ android {
         versionName = "0.1.0"
     }
 
+    // 고정 디버그 키: CI 에서 빌드한 APK 도 같은 서명이라 덮어 설치(업데이트)가 된다
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

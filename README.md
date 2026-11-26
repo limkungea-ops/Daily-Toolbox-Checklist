@@ -17,5 +17,8 @@ echo "sdk.dir=/path/to/android-sdk" > local.properties
 ```
 APK: `app/build/outputs/apk/debug/app-debug.apk`
 
+GitHub Actions(`.github/workflows/build-apk.yml`)가 push 마다 테스트와 APK 를 빌드합니다.
+GitHub 저장소의 Actions 탭 → 실행 → Artifacts 의 `toolbox-debug-apk` 에서 내려받습니다.
+
 ## 폼 항목 ID
 폼이 수정되면 `app/src/main/java/com/orion/toolbox/logic/FormLogic.kt` 의 `FormSpec` 을 갱신합니다.
