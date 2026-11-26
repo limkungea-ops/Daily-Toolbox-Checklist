@@ -1,5 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert");
+global.TOOLBOX_OPTIONS = ["GMP617", "GMP516", "EMS-안동"];
 const L = require("../logic.js");
 
 const form = "https://docs.google.com/forms/d/e/1FAIpQLSexample_ID-123/viewform?usp=sf_link";
@@ -57,4 +58,18 @@ test("validate", () => {
 
 test("historyKey", () => {
   assert.strictEqual(L.historyKey("2026-11-26", "Day", "Before"), "2026-11-26|Day|Before");
+});
+
+test("toolbox no must be in list; suggest GMP prefix", () => {
+  assert.ok("toolBoxNo" in L.validateSettings({ ...base, toolBoxNo: "516" }));
+  assert.ok(!("toolBoxNo" in L.validateSettings({ ...base, toolBoxNo: "GMP516" })));
+  assert.strictEqual(L.suggestToolBoxNo("516"), "GMP516");
+  assert.strictEqual(L.suggestToolBoxNo("gmp617"), "GMP617");
+  assert.strictEqual(L.suggestToolBoxNo("999"), "999");
+});
+
+test("email prefill params", () => {
+  const u = L.buildPrefillUrl({ ...base, email: "a@b.com" }, { phase: "Before", abnormal: 0 });
+  assert.ok(u.includes("emailAddress=a%40b.com") && u.includes("emailReceipt=true"));
+  assert.ok("email" in L.validateSettings({ ...base, email: "bad" }));
 });

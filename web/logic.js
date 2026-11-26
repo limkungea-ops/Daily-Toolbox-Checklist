@@ -1,8 +1,8 @@
 /* Google Form 미리채움 로직 (안드로이드 앱 FormLogic.kt 와 동일 규칙) */
 (function (root, factory) {
-  if (typeof module === "object" && module.exports) module.exports = factory();
-  else root.FormLogic = factory();
-})(typeof self !== "undefined" ? self : this, function () {
+  if (typeof module === "object" && module.exports) module.exports = factory(globalThis.TOOLBOX_OPTIONS || null);
+  else root.FormLogic = factory(root.TOOLBOX_OPTIONS || null);
+})(typeof self !== "undefined" ? self : this, function (toolBoxOptions) {
   // 폼 항목 ID: 폼이 수정되면 여기만 갱신한다
   var ENTRY = {
     toolBoxNo: "entry.2099377435",
@@ -35,10 +35,13 @@
 
   function validateSettings(s) {
     var e = {};
-    if (!(s.toolBoxNo || "").trim()) e.toolBoxNo = "Tool Box No 를 입력하세요 (폼 목록과 동일하게)";
+    var tb = (s.toolBoxNo || "").trim();
+    if (!tb) e.toolBoxNo = "Tool Box No 를 선택하세요";
+    else if (toolBoxOptions && toolBoxOptions.indexOf(tb) < 0) e.toolBoxNo = "목록에 없는 Tool Box No 입니다 (예: GMP516)";
     var hold = (s.holdCount || "").trim();
     if (!/^\d+$/.test(hold)) e.holdCount = "Hold Count 는 0 이상의 정수여야 합니다";
     if ((s.userName || "").trim() && !USER_RE.test(s.userName.trim())) e.userName = "한글 이름 최대 4자리만 입력 가능합니다";
+    if ((s.email || "").trim() && !/^[^@\s]+@[^@\s]+$/.test(s.email.trim())) e.email = "이메일 형식이 올바르지 않습니다";
     if (!isValidFormUrl(s.formUrl)) e.formUrl = "Google Form 주소(.../viewform)를 붙여넣으세요";
     if ((s.logSheetUrl || "").trim() && !isValidSheetUrl(s.logSheetUrl)) e.logSheetUrl = "Google 시트 주소가 아닙니다";
     if ((s.manualSheetUrl || "").trim() && !isValidSheetUrl(s.manualSheetUrl)) e.manualSheetUrl = "Google 시트 주소가 아닙니다";
@@ -74,14 +77,30 @@
     if (c.abnormal > 0 && c.lossType) p.push([ENTRY.lossType, c.lossType]);
     if ((c.remark || "").trim()) p.push([ENTRY.remark, c.remark.trim()]);
     if (shouldSendMail(s, c)) p.push([ENTRY.sendMail, SEND_MAIL_VALUE]);
-    if (s.recordEmail) p.push(["emailReceipt", "true"]); // 실기기에서 동작 확인 필요
+    // 이메일 기록 체크박스: 폼 설정에 따라 쓰는 파라미터가 달라 둘 다 보낸다 (실기기 확인 필요)
+    if (s.recordEmail) {
+      p.push(["emailReceipt", "true"]);
+      if ((s.email || "").trim()) p.push(["emailAddress", s.email.trim()]);
+    }
     return base + "?" + p.map(function (kv) { return kv[0] + "=" + encodeURIComponent(kv[1]); }).join("&");
   }
 
   function historyKey(dateStr, shift, phase) { return dateStr + "|" + shift + "|" + phase; }
 
+  function toolBoxOptionsList() { return toolBoxOptions || []; }
+
+  /** 저장된 값이 목록에 없고 "GMP"+값 이 있으면 그 값을 제안 (예: 516 → GMP516) */
+  function suggestToolBoxNo(v) {
+    v = (v || "").trim();
+    if (!toolBoxOptions || !v || toolBoxOptions.indexOf(v) >= 0) return v;
+    var up = v.toUpperCase();
+    if (toolBoxOptions.indexOf(up) >= 0) return up;
+    if (toolBoxOptions.indexOf("GMP" + up) >= 0) return "GMP" + up;
+    return v;
+  }
+
   return {
-    ENTRY: ENTRY, LOSS_TYPES: LOSS_TYPES,
+    ENTRY: ENTRY, LOSS_TYPES: LOSS_TYPES, toolBoxOptionsList: toolBoxOptionsList, suggestToolBoxNo: suggestToolBoxNo,
     isValidFormUrl: isValidFormUrl, isValidSheetUrl: isValidSheetUrl, normalizeFormUrl: normalizeFormUrl,
     validateSettings: validateSettings, validateCheckin: validateCheckin,
     shouldSendMail: shouldSendMail, buildPrefillUrl: buildPrefillUrl, historyKey: historyKey,

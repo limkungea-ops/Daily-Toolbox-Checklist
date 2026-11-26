@@ -9,7 +9,7 @@
     ["ON_ABNORMAL", "Abnormal 이 0보다 클 때만 체크"],
   ];
   var DEFAULTS = { toolBoxNo: "", holdCount: "", shift: "Day", userName: "", recordEmail: true,
-    mailMode: "ON_ABNORMAL", formUrl: "", logSheetUrl: "", manualSheetUrl: "" };
+    mailMode: "ON_ABNORMAL", email: "", formUrl: "", logSheetUrl: "", manualSheetUrl: "" };
 
   // ---- 저장소 (사생활 보호 모드 등에서 실패해도 앱은 동작) ----
   var memory = {};
@@ -42,6 +42,7 @@
   }
   function $(id) { return document.getElementById(id); }
 
+  var FIELDS = ["toolBoxNo", "holdCount", "userName", "email", "formUrl", "logSheetUrl", "manualSheetUrl"];
   var settings = loadSettings();
   var state = { phase: null, lossType: null, pending: null, leftPage: false };
 
@@ -174,9 +175,20 @@
 
   // ---- 설정 화면 ----
   var draft = Object.assign({}, settings);
+  function fillToolBoxSelect() {
+    var sel = $("s-toolBoxNo");
+    if (sel.options.length) return;
+    var first = document.createElement("option"); first.value = ""; first.textContent = "선택";
+    sel.appendChild(first);
+    L.toolBoxOptionsList().forEach(function (o) {
+      var op = document.createElement("option"); op.value = o; op.textContent = o; sel.appendChild(op);
+    });
+  }
   function fillSettingsForm() {
+    fillToolBoxSelect();
     draft = Object.assign({}, settings);
-    ["toolBoxNo", "holdCount", "userName", "formUrl", "logSheetUrl", "manualSheetUrl"].forEach(function (k) {
+    draft.toolBoxNo = L.suggestToolBoxNo(draft.toolBoxNo); // 516 → GMP516
+    FIELDS.forEach(function (k) {
       $("s-" + k).value = draft[k]; $("e-" + k).textContent = "";
     });
     $("s-recordEmail").checked = !!draft.recordEmail;
@@ -188,7 +200,7 @@
     renderChips($("shift-chips"), ["Day", "Night"], draft.shift, function (v) { draft.shift = v; syncDraftFields(); drawShift(); });
   }
   function syncDraftFields() {
-    ["toolBoxNo", "holdCount", "userName", "formUrl", "logSheetUrl", "manualSheetUrl"].forEach(function (k) {
+    FIELDS.forEach(function (k) {
       draft[k] = $("s-" + k).value;
     });
     draft.recordEmail = $("s-recordEmail").checked;
@@ -196,7 +208,7 @@
   $("save").onclick = function () {
     syncDraftFields();
     var errs = L.validateSettings(draft);
-    ["toolBoxNo", "holdCount", "userName", "formUrl", "logSheetUrl", "manualSheetUrl"].forEach(function (k) {
+    FIELDS.forEach(function (k) {
       $("e-" + k).textContent = errs[k] || "";
     });
     if (Object.keys(errs).length) { $("save-msg").textContent = "입력 내용을 확인하세요."; return; }
